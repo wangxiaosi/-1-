@@ -1,0 +1,81 @@
+#include<iostream>
+#include<time.h>
+using namespace std;
+
+void main()
+{
+	srand((unsigned)time(NULL));//产生随机种子
+	for(int i=0;i<30;i++)
+	{
+		cout<<"题目"<<i+1<<"为：";
+		int e=rand()%2;//两种情况，当为0时为整数四则运算，当为一时为真分数
+	 if(e==0)
+	 {
+		int a=rand()%100;
+		int b=rand()%100;
+		int c=rand()%4;//产生加减乘除四种情况
+		switch(c)
+		{
+			case 0: cout<<a<<"+"<<b<<"=?";break;
+		
+			case 1: cout<<a<<"-"<<b<<"=?";break;
+		
+			case 2: cout<<a<<"*"<<b<<"=?";break;
+		
+			case 3: while(b==0)//去掉分母为零的情况
+			        {
+				    srand((unsigned)time(NULL));
+				    b=rand()%100;
+				    }
+			        cout<<a<<"/"<<b<<"=?";
+		}
+		cout<<endl;
+	 }
+	 else
+	 {
+        int a=rand()%100;
+		int b=rand()%100;
+		int d=rand()%100;
+		int e=rand()%100;
+		int c=rand()%4;
+		if(b==0)//去掉分母为零的情况
+		{
+          b=rand()%100;
+		}
+		if(e==0)
+		{
+          e=rand()%100;
+		}
+		if(a>b)
+		{
+			int x;
+			x=a;
+			a=b;
+			b=x;
+		}
+		if(d>e)
+		{
+			int x;
+			x=e;
+			e=d;
+			d=x;
+		}
+		switch(c)
+		{
+			case 0: cout<<"("<<a<<"/"<<b<<")"<<"+"<<"("<<d<<"/"<<e<<")"<<"=?";break;
+		
+			case 1: cout<<"("<<a<<"/"<<b<<")"<<"-"<<"("<<d<<"/"<<e<<")"<<"=?";break;
+		
+			case 2: cout<<"("<<a<<"/"<<b<<")"<<"*"<<"("<<d<<"/"<<e<<")"<<"=?";break;
+		
+			case 3: while(b==0)
+					{
+					srand((unsigned)time(NULL));
+					b=rand()%100;
+					}
+					cout<<"("<<a<<"/"<<b<<")"<<"/"<<"("<<d<<"/"<<e<<")"<<"=?";
+		}
+		cout<<endl;
+	 }
+	}
+}
