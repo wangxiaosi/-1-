@@ -1,0 +1,209 @@
+#include<iostream>
+#include<time.h>
+using namespace std;
+
+void output(int a,int b,int c,int d,int e)
+{
+	for(int i=a;i>1;i--)
+	{
+		if(a%i==0&&b%i==0)
+		{
+			a=a/i;
+			b=b/i;
+			break;
+		}
+	}
+	for(int i=c;i>1;i--)
+	{
+		if(c%i==0&&d%i==0)
+		{
+			c=c/i;
+			d=d/i;
+			break;
+		}
+	}
+	switch(e)
+	{
+         case 0:cout<<"("<<a<<"/"<<b<<")"<<"+"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 1:cout<<"("<<a<<"/"<<b<<")"<<"-"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 2:cout<<"("<<a<<"/"<<b<<")"<<"*"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 3:cout<<"("<<a<<"/"<<b<<")"<<"/"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+	}
+}
+void main()
+{
+	int z[30][3],x[30][5],m=1,y=0,p=0;
+    int cheng=1,ma,mi,jia=1,yu=1,amount;
+	cout<<"请定义以下参数：";
+	cout<<"生成多少个式子？";
+	cin>>amount;
+	cout<<"是否有乘除法？(0没有1有)";
+	cin>>cheng;
+	cout<<"数值范围？（最大和最小）";
+	cin>>ma;
+	cin>>mi;
+	cout<<"加减有无负数？(1可以有0不能有)";
+	cin>>jia;
+	cout<<"除法有无余数？(可以有0没有)";
+	cin>>yu;
+	srand((unsigned)time(NULL));//产生随机种子
+	for(int i=0;i<amount;i++)
+	{
+		cout<<"题目"<<i+1<<"为：";
+		int e=rand()%2;//两种情况，当为0时为整数四则运算，当为一时为真分数
+	 if(e==0)
+	 {
+		int a=rand()%ma+mi;
+		int b=rand()%ma+mi;
+		int c=rand()%4;//产生加减乘除四种情况
+		if(y>0)
+		{
+			while(m==1)
+			{
+			 for(int j=0;j<y+1;j++)
+			 {
+				if(a==z[j][1]&&b==z[j][2]&&c==z[j][3])
+				{
+					srand((unsigned)time(NULL));
+					a=rand()%ma+mi;
+					srand((unsigned)time(NULL));
+					b=rand()%ma+mi;
+					break;
+				}
+				if(j==y)
+				{
+					m=0;
+				}
+			  }
+			}
+		}
+		z[y][1]=a;
+		z[y][2]=b;
+		z[y][3]=c;
+		y++;
+		if(cheng==0)
+		{
+			c=rand()%2;
+		}
+		switch(c)
+		{
+			case 0: cout<<a<<"+"<<b<<"=?";break;
+		
+			case 1: if(jia==0)
+					{
+						while((a-b)<0)
+						{
+                           srand((unsigned)time(NULL));
+				           b=rand()%ma+mi;
+						}
+					}
+					cout<<a<<"-"<<b<<"=?";break;
+			case 2: cout<<a<<"*"<<b<<"=?";break;
+		
+			case 3:
+				if(yu==0)
+				{
+					while(a%b!=0)
+					{
+					srand((unsigned)time(NULL));
+				    b=rand()%100;
+					}
+				}
+				while(b==0)//去掉分母为零的情况
+			        {
+				    srand((unsigned)time(NULL));
+				    b=rand()%100;
+				    }
+			        cout<<a<<"/"<<b<<"=?";
+		 
+		}
+		cout<<endl;
+	 }
+	 else
+	 {
+        int a=rand()%100;
+		int b=rand()%100;
+		int d=rand()%100;
+		int e=rand()%100;
+
+		int c=rand()%4;
+		if(p>0)
+		{
+			while(m==1)
+			{
+				for(int j=0;j<p+1;j++)
+				{
+					if(a==x[j][1]&&b==x[j][2]&&d==x[j][3]&&e==x[j][3]&&c==x[j][3])
+					{
+						srand((unsigned)time(NULL));
+						a=rand()%100;
+						srand((unsigned)time(NULL));
+						b=rand()%100;
+						break;
+					}
+					if(j==p)
+					{
+					m=0;
+					}
+				}
+			 }
+		}
+		x[p][1]=a;
+		x[p][2]=b;
+		x[p][3]=d;
+		x[p][4]=e;
+		x[p][5]=c;
+		p++;
+
+		if(cheng==0)
+		{
+			c=rand()%2;
+		}
+		if(b==0)//去掉分母为零的情况
+		{
+          b=rand()%100;
+		}
+		if(e==0)
+		{
+          e=rand()%100;
+		}
+		if(a>b)//调整为真分数
+		{
+			int x;
+			x=a;
+			a=b;
+			b=x;
+		}
+		if(d>e)//调整为真分数
+		{
+			int x;
+			x=e;
+			e=d;
+			d=x;
+		}
+		switch(c)
+		{
+			case 0: output(a,b,d,e,c);break;
+		
+			case 1: 
+				if(jia==0)
+					{
+						while((double(a/b)-double(d/e))<0)
+						{
+                           srand((unsigned)time(NULL));
+						   a=rand()%100;
+				           d=rand()%100;
+						}
+					}
+				output(a,b,d,e,c);break;
+		 
+			case 2: output(a,b,d,e,c);break;
+		
+			case 3: output(a,b,d,e,c);break;
+		 
+		}
+		cout<<endl;
+	 }
+	 m=1;
+	}
+}
