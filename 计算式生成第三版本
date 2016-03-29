@@ -1,0 +1,416 @@
+#include<iostream>
+#include<time.h>
+using namespace std;
+
+#define MAXSIZE 100
+
+typedef struct//栈的储存结构定义
+{
+	int *base;
+	int *top;
+	int stacksize;
+}Sqstack;
+
+int InitStack(Sqstack &S)//为计算构造一个数字空栈
+{
+	S.base = new int[MAXSIZE];
+	if(!S.base) exit(OVERFLOW);
+	S.top = S.base;
+	S.stacksize = MAXSIZE;
+	return 1;
+}
+
+int push(Sqstack &S,int e)//入栈
+{
+	if(S.top-S.base == S.stacksize) return 0;
+	*S.top++ = e;
+	return 1;
+}
+
+int pop(Sqstack &S)//出栈
+{
+	int e;
+	if(S.top == S.base) return 0;
+	e = *--S.top;
+	return e;
+}
+
+int gettop(Sqstack S)//取栈顶元素
+{
+	if(S.top != S.base)
+		return *(S.top - 1);
+}
+
+int getsecondtop(Sqstack S)//取次栈顶元素
+{
+	if(S.top != S.base)
+		return *(S.top - 2);
+}
+
+int z[30][7],x[30][11];
+
+int output(int a,int b,int c,int d,int e)//分数输出
+{
+	for(int i = a;i > 1;i--)
+	{
+		if(a % i == 0 && b % i == 0)
+		{
+			a = a / i;
+			b = b / i;
+			break;
+		}
+	}
+	for(int i = c;i > 1;i--)
+	{
+		if(c%i == 0 && d % i == 0)
+		{
+			c = c / i;
+			d = d / i;
+			break;
+		}
+	}
+	switch(e)
+	{
+         case 0 : cout<<"("<<a<<"/"<<b<<")"<<"+"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 1 : cout<<"("<<a<<"/"<<b<<")"<<"-"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 2 : cout<<"("<<a<<"/"<<b<<")"<<"*"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 3 : cout<<"("<<a<<"/"<<b<<")"<<"/"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+	}
+	return 1;
+}
+
+int fenshu_zhengquejieguo(int a,int b,int c,int d,int e)
+{
+	switch(e)
+	{
+         case 0: return(int (a * d + c * b) / (b * d)); break;
+		 case 1: return(int (a * d - c * b) / (b * d));break;
+		 case 2: return(int (a * c) / (b * d));break;
+		 case 3: return(int (a * c) / (b * d));break;
+	}
+	return 1;
+}
+
+int zhengshu_zhengquejieguo(int *a)
+{
+	Sqstack Shuzi,Fuhao;//声明
+	InitStack(Shuzi);//初始化
+	InitStack(Fuhao);//初始化
+	int e,c,p,e2,q;
+	for(int i = 1;i < 8;i++)
+	{
+		if(i%2 == 0)//如果是符号压入符号栈
+		{
+              push(Fuhao,a[i]);
+		}
+		else//否则压入数字栈
+		{
+              push(Shuzi,a[i]); 
+		}
+
+		if(i > 3 && gettop(Fuhao) > 2)//如果从左向右遇见乘除法就直接执行
+		{
+			e = pop(Fuhao);
+			c = pop(Shuzi);
+			p = pop(Shuzi);
+			switch(e)
+			{
+                 case 0: push(Shuzi,(c*p));
+			     case 1: push(Shuzi,(p/c));
+			}
+		}
+
+		if(gettop(Fuhao) < 2 && getsecondtop(Fuhao) < 2)//如果遇见连续的两个加减法执行第一个
+		{
+			e = pop(Fuhao);
+			e2 = pop(Fuhao);
+			c = pop(Shuzi);
+			p = pop(Shuzi);
+			q = pop(Shuzi);
+			switch(e2)
+			{
+			     case 0: push(Shuzi,(q + p));
+			     case 1: push(Shuzi,(q - p));
+			}
+			push(Shuzi,c);
+			push(Fuhao,e);
+		}
+	}
+
+	if(Shuzi.top != Shuzi.base)//最终肯定会剩下一组数还有最后一次加减运算
+	{
+         e = pop(Fuhao);
+		 c = pop(Shuzi);
+		 p = pop(Shuzi);
+
+		 switch( e )
+		 {
+              case 0: push(Shuzi,(c + p));
+			  case 1: push(Shuzi,(p - c));
+		 }
+	}
+
+	return gettop(Shuzi);
+
+}
+
+int shuchu(int *a,int yu,int y)//整数输出
+{
+	for(int i = 1;i < 8;i++)
+	{
+		if(i%2 == 1)//挑出数字
+		{
+			while(a[i] == 0)
+			{
+				if(a[i+1] == 3)
+				{
+					srand((unsigned)time(NULL));
+						a[i] = rand() % 100;
+						z[y][i] = a[i];//更新原来数组
+				}
+			}
+			if(a[i+1] == 3)//判断除法是否有余数
+			{
+				if(yu == 0)
+				{
+					while(a[ i ] % a[ i + 2 ] != 0)
+					{
+						srand((unsigned)time(NULL));
+						a[i] = rand() % 100; 
+						z[y][i] = a[i];//更新原来数组
+					}
+				}
+			}
+			cout<<a[i];
+		}
+		else
+		{
+			switch(a[i])
+			{
+				case 0: cout << "+"; break;
+				case 1: cout << "-"; break;
+				case 2: cout << "*"; break;
+				case 3: cout << "/";
+			}
+		}
+	}
+	return 1; 
+}
+
+int main()
+{
+	int m = 1,y = 0,p = 0,a[10];
+	int number_amount,number_jisuanshileixing;
+    int ma,mi;
+	int tiaojian_yu = 1,tiaojian_cheng,tiaojian_jia;;
+	int kehu_jieguo;
+
+	srand((unsigned)time(NULL));//产生随机种子
+	cout << "请选择是整数运算还是真分数运算（1.整数，2分数）";
+
+	cin >> number_jisuanshileixing;
+
+	if(number_jisuanshileixing == 1)
+	{
+       	cout << "数值范围？（最大和最小）";
+	    cin >> ma;
+	    cin >> mi;
+
+		cout<<"除法有无余数？(可以有0没有)";
+	    cin>>tiaojian_yu;
+
+		cout << "生成多少个式子？";
+	    cin >> number_amount;
+
+		cout << "是否有乘除法（0.没有1.有）";
+		cin >> tiaojian_cheng;
+
+		for(int i = 0;i < number_amount;i++)
+		{
+			cout << "题目" << i+1 << "为：";
+			int first_number=rand()%ma+mi;
+			int first_operatr=rand()%4;//产生加减乘除四种情况
+			int second_number=rand()%ma+mi;
+			int second_operatr=rand()%4;//产生加减乘除四种情况
+			int third_number=rand()%ma+mi;
+			int third_operatr=rand()%4;//产生加减乘除四种情况
+			int forth_number=rand()%ma+mi;
+
+			if(y>0)
+			{
+				while(m==1)
+				{
+					for(int j=0;j<y+1;j++)
+					{
+						if(first_number==z[j][1]&&first_operatr==z[j][2]&&second_number==z[j][3]&&second_operatr==z[j][4]&&third_number==z[j][5]&&third_operatr==z[j][6]&&forth_number==z[j][7])
+						{
+							srand((unsigned)time(NULL));
+							first_number=rand()%ma+mi;
+
+							srand((unsigned)time(NULL));
+							second_number=rand()%ma+mi;
+							break;
+						}
+						if(j==y)
+						{
+							m=0;
+						}
+					}
+				}
+			}
+			z[y][1]=first_number;
+			if(tiaojian_cheng=0)
+			{
+				first_operatr=rand()%2;
+			}
+			z[y][2]=first_operatr;
+			z[y][3]=second_number;
+			if(tiaojian_cheng=0)
+			{
+				second_operatr=rand()%2;
+			}
+			z[y][4]=second_operatr;
+			z[y][5]=third_number;
+			if(tiaojian_cheng=0)
+			{
+				third_operatr=rand()%2;
+			}
+			z[y][6]=third_operatr;
+			z[y][7]=forth_number;
+
+			y++;
+
+			for(int i=1;i<8;i++)
+		    {
+				a[i]=z[y][i];
+			}
+				shuchu(a,tiaojian_yu,y);
+				cout<<endl;
+
+				cout<<"请输入正确结果！";
+				cin>>kehu_jieguo;
+
+				if(kehu_jieguo==zhengshu_zhengquejieguo(a))
+				{
+					cout<<"输入正确！";
+				}
+				else
+				{
+					cout<<"输入错误";
+				}
+		 }
+	}
+	else if(number_jisuanshileixing==2)
+	{
+		cout<<"生成多少个式子？";
+	    cin>>number_amount;
+		cout<<"是否有乘除法（0.没有1.有）";
+		cin>>tiaojian_cheng;
+		cout<<"加减是否能得复数（0.不能1.能）";
+		cin>>tiaojian_jia;
+		for(int i=0;i<number_amount;i++)
+		{
+			int frist_fenzi=rand()%100;
+			int first_fenmu=rand()%100;
+			int second_fenzi=rand()%100;
+			int second_fenmu=rand()%100;
+
+			int fuhao=rand()%4;
+			if(p>0)
+			{
+				while(m==1)
+				{
+					for(int j=0;j<p+1;j++)
+					{
+						if(frist_fenzi==x[j][1]&&first_fenmu==x[j][2]&&second_fenzi==x[j][3]&&second_fenmu==x[j][3]&&fuhao==x[j][3])
+						{
+							srand((unsigned)time(NULL));
+							frist_fenzi=rand()%100;
+							srand((unsigned)time(NULL));
+							second_fenzi=rand()%100;
+							break;
+						}
+						if(j==p)
+						{
+							m=0;
+						}
+					}
+				 }
+			}
+
+			x[p][1]=frist_fenzi;
+			x[p][2]=first_fenmu;
+			x[p][3]=second_fenzi;
+			x[p][4]=second_fenmu;
+			if(tiaojian_cheng=0)//处理有无乘除法
+			{
+				fuhao=rand()%2;
+			}
+
+			x[p][5]=fuhao;
+
+			p++;
+
+			if(first_fenmu==0)//去掉分母为零的情况
+			{
+		     first_fenmu=rand()%100;
+			}
+			if(second_fenmu==0)
+			{
+		      second_fenmu=rand()%100;
+			}
+
+			if(frist_fenzi>first_fenmu)//调整为真分数
+			{
+				int x;
+				x=first_fenmu;
+				first_fenmu=frist_fenzi;
+				frist_fenzi=x;
+			}
+
+			if(second_fenzi>second_fenmu)//调整为真分数
+			{
+				int x;
+				x=second_fenzi;
+				second_fenzi=second_fenmu;
+				second_fenmu=x;
+			}
+
+			switch(fuhao)
+			{
+				case 0: output(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao);break;
+		
+				case 1: 
+					if(tiaojian_jia==0)
+						{
+							while((double(frist_fenzi/first_fenmu)-double(second_fenzi/second_fenmu))<0)
+							{
+				               srand((unsigned)time(NULL));
+							   frist_fenzi=rand()%100;
+					           second_fenzi=rand()%100;
+							}
+						}
+					output(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao);break;
+		 
+				case 2: output(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao);break;
+		
+				case 3: output(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao);break;
+		 
+			}
+
+			cout<<"请输入正确结果！";
+			cin>>kehu_jieguo;
+			if(kehu_jieguo==fenshu_zhengquejieguo(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao))
+			{
+				cout<<"输入正确！";
+			}
+			else
+			{
+				cout<<"输入错误";
+			}
+			cout<<endl;
+			m=1;
+		 }
+	}
+	return 1;
+}
