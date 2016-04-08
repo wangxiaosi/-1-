@@ -1,0 +1,650 @@
+#include<iostream>
+#include<time.h>
+using namespace std;
+
+#define MAXSIZE 100
+
+typedef struct//栈的储存结构定义
+{
+	int *base;
+	int *top;
+	int stacksize;
+}Sqstack;
+
+int InitStack(Sqstack &S)//为计算构造一个数字空栈
+{
+	S.base = new int[MAXSIZE];
+	if(!S.base) exit(OVERFLOW);
+	S.top = S.base;
+	S.stacksize = MAXSIZE;
+	return 1;
+}
+
+int push(Sqstack &S,int e)//入栈
+{
+	if(S.top-S.base == S.stacksize) return 0;
+	*S.top++ = e;
+	return 1;
+}
+
+int pop(Sqstack &S)//出栈
+{
+	int e;
+	if(S.top == S.base) return 0;
+	e = *--S.top;
+	return e;
+}
+
+int gettop(Sqstack S)//取栈顶元素
+{
+	if(S.top != S.base)
+		return *(S.top - 1);
+}
+
+int getsecondtop(Sqstack S)//取次栈顶元素
+{
+	if(S.top != S.base)
+		return *(S.top - 2);
+}
+
+int z[30][7],x[30][11];
+
+int output(int a,int b,int c,int d,int e)//分数输出
+{
+	for(int i = a;i > 1;i--)
+	{
+		if(a % i == 0 && b % i == 0)
+		{
+			a = a / i;
+			b = b / i;
+			break;
+		}
+	}
+	for(int i = c;i > 1;i--)
+	{
+		if(c%i == 0 && d % i == 0)
+		{
+			c = c / i;
+			d = d / i;
+			break;
+		}
+	}
+	switch(e)
+	{
+         case 0 : cout<<"("<<a<<"/"<<b<<")"<<"+"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 1 : cout<<"("<<a<<"/"<<b<<")"<<"-"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 2 : cout<<"("<<a<<"/"<<b<<")"<<"*"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+		 case 3 : cout<<"("<<a<<"/"<<b<<")"<<"/"<<"("<<c<<"/"<<d<<")"<<"=?";break;
+	}
+	return 1;
+}
+
+int fenshu_zhengquejieguo(int a,int b,int c,int d,int e)
+{
+	switch(e)
+	{
+         case 0: return(int (a * d + c * b) / (b * d)); break;
+		 case 1: return(int (a * d - c * b) / (b * d));break;
+		 case 2: return(int (a * c) / (b * d));break;
+		 case 3: return(int (a * d) / (b * c));break;
+	}
+	return 1;
+}
+
+int zhengshu_zhengquejieguo(int *a)
+{
+	Sqstack Shuzi,Fuhao;//声明
+	InitStack(Shuzi);//初始化
+	InitStack(Fuhao);//初始化
+	int e,c,p,e2,q;
+	for(int i = 0;i < 7;i++)
+	{
+		if(i%2 == 1)//如果是符号压入符号栈
+		{
+              push(Fuhao,a[i]);
+		}
+		else//否则压入数字栈
+		{
+              push(Shuzi,a[i]); 
+		}
+
+		if(i > 1 &&gettop(Fuhao) > 1 &&  i % 2 == 0)//如果从左向右遇见乘除法就直接执行
+		{
+			e = pop(Fuhao);
+			c = pop(Shuzi);
+			p = pop(Shuzi);
+			switch(e)
+			{
+                 case 2: push(Shuzi,(c*p));break;
+			     case 3: push(Shuzi,(p/c));break;
+			}
+		}
+
+		if(i > 3 && gettop(Fuhao) < 2 && getsecondtop(Fuhao) < 2 && Fuhao.top - Fuhao.base > 1 && i % 2 == 0)//如果遇见连续的两个加减法执行第一个
+		{
+			e = pop(Fuhao);
+			e2 = pop(Fuhao);
+			c = pop(Shuzi);
+			p = pop(Shuzi);
+			q = pop(Shuzi);
+			switch(e2)
+			{
+			     case 0: push(Shuzi,(q + p));break;
+			     case 1: push(Shuzi,(q - p));break;
+			}
+			push(Shuzi,c);
+			push(Fuhao,e);
+		}
+	}
+
+	if(Shuzi.top != Shuzi.base)//最终肯定会剩下一组数还有最后一次加减运算
+	{
+         e = pop(Fuhao);
+		 c = pop(Shuzi);
+		 p = pop(Shuzi);
+
+		 switch( e )
+		 {
+              case 0: push(Shuzi,(p + c));break;
+			  case 1: push(Shuzi,(p - c));break;
+		 }
+	}
+
+	return gettop(Shuzi);
+
+}
+
+int panduanchongfu(int *a,int ma,int mi,int y)
+{
+//---------------------------------------------用来判断是不是完全相同-----------------------------------------------------
+	int m = 1;
+    while(m == 1)
+	{
+	    for(int j = 0;j < y;j++)
+		{
+		    if(a[0]==z[j][0]&&a[1]==z[j][1]&&a[2]==z[j][2]&&a[3]==z[j][3]&&a[4]==z[j][4]&&a[5]==z[j][5]&&a[6]==z[j][6])
+			{
+			    srand((unsigned)time(NULL));
+				a[0] = rand() % ma + mi;
+				z[y][0] = a[0];
+
+				a[1] = rand() % ma + mi;
+				z[y][1] = a[1];
+				break;
+			}
+
+			if( j == ( y - 1 ) )
+			{
+				m = 0;
+			}
+		}
+	}
+//----------------------------------------------判断加法出现时候是不是完全相同------------------------------------------------------------
+	while(m == 1)
+	{
+	    for(int j = 0;j < y;j++)
+		{
+		    if(a[1]==0&&a[3]==z[j][3]&&a[4]==z[j][4]&&a[5]==z[j][5]&&a[6]==z[j][6]&&a[0]==a[2]&&a[3]<2)//加法在第一位，并且旁边两个数换了位置
+			{
+				srand((unsigned)time(NULL));
+				a[0] = rand() % ma + mi;
+				z[y][0] = a[0];
+				break;
+			}
+
+			if( j == ( y - 1 ) )
+			{
+				m = 0;
+			}
+		}
+	}
+//----------------------------------------------判断乘法出现时候是不是完全相同------------------------------------------------------------
+	/*while(m == 1)
+	{
+	    for(int j = 0;j < y;j++)
+		{
+		    
+
+			if( j == ( y - 1 ) )需要注意，这几种情况  一个乘号 1.在第一位 2*3 和 3*2 2.在第二位 前边没有乘除法 3.在第三位，第二位没有乘除法
+			{                                         两个乘号 1.在前两个 1*2*3 和 3*2*1 和 2*3*1 等六种情况 2.在后两个，前边不是乘除法
+				m = 0;                                三个乘号 
+			}
+		}
+	}*/
+//---------------------------------------------加法和乘法除法相邻出现并且重复---------------------------
+	/*加法连接乘除法 1+2*3 == 2*3+1
+	*/
+	return 1;
+}
+
+int tiaojianpanduan(int *a,int y,int ma,int mi)//整数输出
+{
+	for(int i = 0;i < 7;i++)
+	{
+		if(i%2 == 0)//挑出数字，如果直接筛选出符号那么不能修改之前的数字
+		{
+//---------------------------------------------------------------------------------------------------------------------------------------
+			while(a[i] == 0)//判断被除数为0的情况
+			{
+				while(i > 0 && a[i - 1] == 3)
+				{
+				    srand((unsigned)time(NULL));
+					a[i] = rand() % ma + mi;
+					z[y][i] = a[i];//更新原来数组
+				}
+			}
+			if(a[ i + 1 ] == 2)//出现除法前边有乘法的情况，首先计算出乘法的结果
+			{//并且根据概率更新除法参与运算数的情况有可能永远不能实现结果为真分数,所以更新乘法参与运算数
+				if(a[ i + 3 ] == 3)
+				{
+					while(a[i] * a[i+2] > a[i+4])
+					{
+						srand((unsigned)time(NULL));
+					    a[i+2] = rand() % ma + mi;
+					    z[y][i+2] = a[i+2];//更新原来数组
+					}
+				}
+			}
+			if(a[i+1] == 3&&a[i-1] != 2)//有除法，其中包括只有一个除法，还有连续好几个除法，但是通过改变后一个数的规律可以有效的解决这个问题
+			{
+					while(a[i] > a[i + 2])
+					{
+					    srand((unsigned)time(NULL));
+					    a[i+2] = rand() % ma + mi;
+					    z[y][i+2] = a[i+2];//更新原来数组
+					}
+			}
+//--------------------------------------此上是处理出现除法的情况，此下是减法---------------------------------------------------------------
+			if(a[i+1]==1)//出现减法的情况
+			{
+				if(i + 1 ==5 && a[i-3]==3 && a[i-1]==2 && a[i-4]/a[i-2]*a[i] < a[i+2])//减法在最后一个符号位置，并且前边是除法连接乘法
+				{
+					while(a[i-4]/a[i-2]*a[i]<mi)//前边计算出来的数字之和小于随机生成数的最小值，那么就更新最后一个数字和乘法的后一个数字
+					{
+						srand((unsigned)time(NULL));
+					    a[i] = rand() % ma + mi;
+						a[i+2] = rand() % ma + mi;
+					    z[y][i] = a[i];//更新原来数组
+						z[y][i+2] = a[i+2];//更新原来数组
+
+					}
+					while(a[i-4]/a[i-2]*a[i] >= mi)//如果大于最小值，那么只需要更新减数
+					{
+						srand((unsigned)time(NULL));
+						a[i+2] = rand() % ma + mi;
+						z[y][i+2] = a[i+2];//更新原来数组
+					}
+				}
+				if(a[i-1]==3 && i+1==3)//除法出现在减法前边一个符号，将减法变为加法.只有减法在第二个符号时有效
+				{
+					a[i+1]=0;
+					z[y][i+1] = a[i+1];//更新原来数组
+				}
+				//此上两种情况是处理除法和减法同时出现并且互相影响的情况
+            //减号附近有没有乘除法，提前计算
+				switch(i+1)
+				{
+				    case 1://减法在第一位的情况
+						if(a[i+3]==2 && a[i+5]<2)//- * _ 因为前一步已经将除法得数化为真分数，所以不用考虑除法的情况
+						   {
+                                while(a[i]-a[i+2]*a[i+4]<0)
+								{
+                                    srand((unsigned)time(NULL));
+						            a[i+2] = rand() % ma + mi;
+						            z[y][i+2] = a[i+2];//更新原来数组
+									a[i+4] = rand() % ma + mi;
+						            z[y][i+4] = a[i+4];//更新原来数组
+								}
+						   }
+						   if(a[i+3]==2 && a[i+5]==2)//- * *同上步解释，不用考虑先乘后初的情况
+						   {
+						        while(a[i]-a[i+2]*a[i+4]*a[i+6]<0)
+								{
+                                    srand((unsigned)time(NULL));
+						            a[i+2] = rand() % ma + mi;
+						            z[y][i+2] = a[i+2];//更新原来数组
+									a[i+4] = rand() % ma + mi;
+						            z[y][i+4] = a[i+4];//更新原来数组
+									a[i+6] = rand() % ma + mi;
+						            z[y][i+6] = a[i+6];//更新原来数组
+								}
+						   }
+						   if(a[i+3]==2 && a[i+5]==2)//- / *
+						   {
+						        while(a[i]-a[i+2]/a[i+4]*a[i+6]<0)
+								{
+                                    srand((unsigned)time(NULL));
+						            a[i+2] = rand() % ma + mi;
+						            z[y][i+2] = a[i+2];//更新原来数组
+									a[i+4] = rand() % ma + mi;
+						            z[y][i+4] = a[i+4];//更新原来数组
+									a[i+6] = rand() % ma + mi;
+						            z[y][i+6] = a[i+6];//更新原来数组
+								}
+						   }break;
+					case 3://减法在第二位的情况
+						if(a[i-1]==2&&a[i+3]==2)//* - *
+						{
+							while(a[i-2]*a[i]<a[i+2]*a[i+4])
+							{
+								srand((unsigned)time(NULL));
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+								a[i+4] = rand() % ma + mi;
+						        z[y][i+4] = a[i+4];//更新原来数组
+							}
+						}
+						if(a[i+3]==2 && a[i-1]==0)//+ - *
+						{
+                            while( ( a[i-2] + a[i] ) < ( a[i+2] * a[i+4] ) )
+							{
+								srand( ( unsigned ) time( NULL ) );
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+								a[i+4] = rand() % ma + mi;
+						        z[y][i+4] = a[i+4];//更新原来数组
+							}
+						}
+						if(a[i+3]==2 && a[i-1]==1)//- - *
+						{
+                            while( ( a[i-2] - a[i] ) < ( a[i+2] * a[i+4] ) )
+							{
+								srand( ( unsigned ) time( NULL ) );
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+								a[i+4] = rand() % ma + mi;
+						        z[y][i+4] = a[i+4];//更新原来数组
+							}
+						}
+						if(a[i+3]<2 && a[i-1]==2)//* - _
+						{
+                            while(a[i-2]*a[i]<a[i+2])
+							{
+								srand((unsigned)time(NULL));
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+							}
+						}
+					case 5://减法在第三位的情况
+						if(a[i-3]==2&&a[i-1]==2)//* * -
+						{
+                            while(a[i-4]*a[i-2]*a[i]<a[i+2])
+						    {
+							    srand((unsigned)time(NULL));
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+							    a[i] = rand() % ma + mi;
+						        z[y][i] = a[i];//更新原来数组
+						    }
+						}
+						if(a[i-3]==0&&a[i-1]==2)//+ * -
+						{
+							while(a[i-4]+a[i-2]*a[i]<a[i+2])
+							{
+							    srand((unsigned)time(NULL));
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+							    a[i] = rand() % ma + mi;
+						        z[y][i] = a[i];//更新原来数组
+							}
+						}
+						if(a[i-3]==1&&a[i-1]==2)//- * -
+						{
+							while(a[i-4]-a[i-2]*a[i]<a[i+2])
+							{
+							    srand((unsigned)time(NULL));
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+							}
+						}
+						if(a[i-3]==0&&a[i-1]==3)//+ / -
+						{
+							while(a[i-4]+a[i-2]/a[i]<a[i+2])
+							{
+							    srand((unsigned)time(NULL));
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+							    a[i] = rand() % ma + mi;
+						        z[y][i] = a[i];//更新原来数组
+							}
+						}
+						if(a[i-3]==1&&a[i-1]==3)//- / -
+						{
+							while(a[i-4]-a[i-2]/a[i]<a[i+2])
+							{
+							    srand((unsigned)time(NULL));
+						        a[i+2] = rand() % ma + mi;
+						        z[y][i+2] = a[i+2];//更新原来数组
+							}
+						}
+				}
+				while(a[i]<a[i+2])
+				{
+					srand((unsigned)time(NULL));
+					a[i+2] = rand() % ma + mi;
+					z[y][i+2] = a[i+2];//更新原来数组
+				}
+			}
+		}
+	}
+	return 1; 
+}
+
+int shuchu(int *a,int y,int ma,int mi)//整数输出
+{
+	for(int i = 0;i < 7;i++)
+	{
+		if(i%2 == 0)//挑出数字
+		{
+			cout<<a[i];
+		}
+		else
+		{
+			switch(a[i])
+			{
+				case 0: cout << "+"; break;
+				case 1: cout << "-"; break;
+				case 2: cout << "*"; break;
+				case 3: cout << "/";
+			}
+		}
+	}
+	cout<<endl;
+	return 1; 
+}
+
+int main()
+{
+	int y = 0,p = 0,suijishu[7],m=1;
+	int number_amount,number_jisuanshileixing,number_daduishu=0;
+    int ma,mi;
+	int tiaojian_cheng,tiaojian_jia;;
+	int kehu_jieguo;
+
+	srand((unsigned)time(NULL));//产生随机种子
+	cout << "请选择是整数运算还是真分数运算（1.整数，2分数）";
+
+	cin >> number_jisuanshileixing;
+
+	if(number_jisuanshileixing == 1)
+	{
+       	cout << "数值范围？（最大和最小）";
+	    cin >> ma;
+	    cin >> mi;
+
+		cout << "生成多少个式子？";
+	    cin >> number_amount;
+
+		cout << "是否有乘除法（1.可以有0.没有）";
+		cin >> tiaojian_cheng;
+
+		for(int i = 0;i < number_amount;i++)
+		{
+			cout << "题目" << i+1 << "为：";
+			for(int i = 0 ; i < 7 ; i++)//生成随机数还有符号
+			{
+				if(i%2==0)
+				{
+					suijishu[i]=rand()%ma+mi;
+				}
+				else
+				{
+					suijishu[i]=rand()%4;//产生加减乘除四种情况
+					if(tiaojian_cheng == 0)
+				    {
+					    suijishu[i]=rand()%2;
+				    }
+				}
+				z[y][i] = suijishu[i];
+			}
+
+			tiaojianpanduan(suijishu,y,ma,mi);
+
+			if(y > 0)
+			{
+				 panduanchongfu(suijishu,ma,mi,y);
+			}
+
+			y++;
+
+			shuchu(suijishu,y,ma,mi);
+
+			cout << "请输入正确结果：";
+			cout << endl;
+			cin >> kehu_jieguo;
+
+			if(kehu_jieguo == zhengshu_zhengquejieguo(suijishu))
+			{
+				cout << "输入正确！";
+				number_daduishu++;
+				cout << "正确结果为" << zhengshu_zhengquejieguo(suijishu) << endl;
+			}
+			else
+			{
+				cout << "输入错误！";
+				cout << "正确结果为" << zhengshu_zhengquejieguo(suijishu) << endl;
+			}
+		 }
+		cout<<"您一共答对了"<<number_daduishu<<"道题";
+	}
+	else if(number_jisuanshileixing==2)
+	{
+		cout<<"生成多少个式子？";
+	    cin>>number_amount;
+
+		cout<<"是否有乘除法（0.没有1.可以有）";
+		cin>>tiaojian_cheng;
+
+		cout<<"加减是否能得负数（0.不能1.能）";
+		cin>>tiaojian_jia;
+
+		for(int i=0;i<number_amount;i++)
+		{
+			int frist_fenzi=rand()%100;
+			int first_fenmu=rand()%100;
+			int second_fenzi=rand()%100;
+			int second_fenmu=rand()%100;
+
+			int fuhao=rand()%4;
+			if(p>0)
+			{
+				while(m==1)
+				{
+					for(int j=0;j<p+1;j++)
+					{
+						if(frist_fenzi==x[j][1]&&first_fenmu==x[j][2]&&second_fenzi==x[j][3]&&second_fenmu==x[j][3]&&fuhao==x[j][3])
+						{
+							srand((unsigned)time(NULL));
+						    frist_fenzi=rand()%100;
+							srand((unsigned)time(NULL));
+							second_fenzi=rand()%100;
+							break;
+						}
+						if(j==p)
+						{
+							m=0;
+						}
+					}
+				 }
+			}
+
+			x[p][1]=frist_fenzi;
+			x[p][2]=first_fenmu;
+			x[p][3]=second_fenzi;
+			x[p][4]=second_fenmu;
+			if(tiaojian_cheng == 0)//处理有无乘除法
+			{
+				fuhao=rand()%2;
+			}
+
+			x[p][5]=fuhao;
+
+			p++;
+
+			if(first_fenmu==0)//去掉分母为零的情况
+			{
+		     first_fenmu=rand()%100;
+			}
+			if(second_fenmu==0)
+			{
+		      second_fenmu=rand()%100;
+			}
+
+			if(frist_fenzi>first_fenmu)//调整为真分数
+			{
+				int x;
+				x=first_fenmu;
+				first_fenmu=frist_fenzi;
+				frist_fenzi=x;
+			}
+
+			if(second_fenzi>second_fenmu)//调整为真分数
+			{
+				int x;
+				x=second_fenzi;
+				second_fenzi=second_fenmu;
+				second_fenmu=x;
+			}
+
+			switch(fuhao)
+			{
+				case 0: output(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao);break;
+		
+				case 1: 
+					if(tiaojian_jia==0)
+						{
+							while((double(frist_fenzi/first_fenmu)-double(second_fenzi/second_fenmu))<0)
+							{
+				               srand((unsigned)time(NULL));
+							   frist_fenzi=rand()%100;
+					           second_fenzi=rand()%100;
+							}
+						}
+					output(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao);break;
+		 
+				case 2: output(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao);break;
+		
+				case 3: output(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao);break;
+		 
+			}
+			cout<<endl;
+			cout<<"请输入正确结果:";
+			cin>>kehu_jieguo;
+			if(kehu_jieguo==fenshu_zhengquejieguo(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao))
+			{
+				cout<<"输入正确！"<<endl;
+				number_daduishu++;
+				cout<<"正确结果为"<<fenshu_zhengquejieguo(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao)<<endl;
+			}
+			else
+			{
+				cout<<"输入错误"<<endl;
+				cout<<"正确结果为"<<fenshu_zhengquejieguo(frist_fenzi,first_fenmu,second_fenzi,second_fenmu,fuhao)<<endl;
+			}
+			cout<<endl;
+			m=1;
+		 }
+		 cout<<"您一共答对了"<<number_daduishu<<"道题";
+	}
+	return 1;
+}
