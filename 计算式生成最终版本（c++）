@@ -1,3 +1,7 @@
+最终版本实现的功能和实现方法如下
+1.能够实现四则运算
+解决方法：将数组扩展，储存多个计算数字。然后根据随机生成的数字生成式子。
+2.
 #include<iostream>
 #include<time.h>
 using namespace std;
